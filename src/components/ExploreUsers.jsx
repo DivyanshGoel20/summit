@@ -16,11 +16,10 @@ export default function ExploreUsers({ user, onBack, onStartChat }) {
     try {
       setLoading(true)
       
-      // Get all users except the current user
+      // Get all users including the current user
       const { data: allUsers, error } = await supabase
         .from('users')
         .select('id, name, username, role, created_at')
-        .neq('id', user?.id)
         .order('created_at', { ascending: false })
 
       if (error) throw error
@@ -50,6 +49,10 @@ export default function ExploreUsers({ user, onBack, onStartChat }) {
 
   const handleStartChat = (targetUser) => {
     onStartChat(targetUser)
+  }
+
+  const isCurrentUser = (userId) => {
+    return userId === user?.id
   }
 
   return (
@@ -82,14 +85,14 @@ export default function ExploreUsers({ user, onBack, onStartChat }) {
             All Users
           </button>
           <button
-            className={`filter-btn ${filter === 'students' ? 'active' : ''}`}
-            onClick={() => setFilter('students')}
+            className={`filter-btn ${filter === 'student' ? 'active' : ''}`}
+            onClick={() => setFilter('student')}
           >
             Students
           </button>
           <button
-            className={`filter-btn ${filter === 'teachers' ? 'active' : ''}`}
-            onClick={() => setFilter('teachers')}
+            className={`filter-btn ${filter === 'teacher' ? 'active' : ''}`}
+            onClick={() => setFilter('teacher')}
           >
             Teachers
           </button>
@@ -116,58 +119,56 @@ export default function ExploreUsers({ user, onBack, onStartChat }) {
         </div>
       ) : (
         <div className="users-grid">
-          {filteredUsers.map(user => (
-            <div key={user.id} className="user-card">
+          {filteredUsers.map(userItem => (
+            <div key={userItem.id} className={`user-card ${isCurrentUser(userItem.id) ? 'current-user' : ''}`}>
               <div className="user-avatar">
-                <span className="avatar-icon" style={{ color: getRoleColor(user.role) }}>
-                  {getRoleIcon(user.role)}
+                <span className="avatar-icon" style={{ color: getRoleColor(userItem.role) }}>
+                  {getRoleIcon(userItem.role)}
                 </span>
+                {isCurrentUser(userItem.id) && (
+                  <div className="current-user-badge">You</div>
+                )}
               </div>
               
               <div className="user-info">
-                <h3 className="user-name">{user.name}</h3>
-                <p className="user-username">@{user.username}</p>
-                <div className="user-role">
+                <div className="user-details-row">
+                  <div className="user-name-section">
+                    <h3 className="user-name">{userItem.name}</h3>
+                    <p className="user-username">@{userItem.username}</p>
+                  </div>
                   <span 
                     className="role-badge"
-                    style={{ backgroundColor: getRoleColor(user.role) }}
+                    style={{ backgroundColor: getRoleColor(userItem.role) }}
                   >
-                    {user.role}
+                    {userItem.role}
                   </span>
+                  <div className="user-joined-section">
+                    <p className="user-joined">Joined</p>
+                    <p className="user-joined-date">
+                      {new Date(userItem.created_at).toLocaleDateString()}
+                    </p>
+                  </div>
                 </div>
-                <p className="user-joined">
-                  Joined {new Date(user.created_at).toLocaleDateString()}
-                </p>
               </div>
 
               <div className="user-actions">
-                <button
-                  onClick={() => handleStartChat(user)}
-                  className="btn btn-primary btn-small"
-                >
-                  💬 Start Chat
-                </button>
+                {isCurrentUser(userItem.id) ? (
+                  <button className="btn btn-secondary btn-small" disabled>
+                    👤 This is you
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => handleStartChat(userItem)}
+                    className="btn btn-primary btn-small"
+                  >
+                    💬 Start Chat
+                  </button>
+                )}
               </div>
             </div>
           ))}
         </div>
       )}
-
-      {/* Stats */}
-      <div className="users-stats">
-        <div className="stat-item">
-          <span className="stat-number">{users.filter(u => u.role === 'students').length}</span>
-          <span className="stat-label">Students</span>
-        </div>
-        <div className="stat-item">
-          <span className="stat-number">{users.filter(u => u.role === 'teachers').length}</span>
-          <span className="stat-label">Teachers</span>
-        </div>
-        <div className="stat-item">
-          <span className="stat-number">{users.length}</span>
-          <span className="stat-label">Total Users</span>
-        </div>
-      </div>
     </div>
   )
 }

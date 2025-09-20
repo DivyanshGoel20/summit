@@ -1,15 +1,22 @@
 import { useState, useEffect } from 'react'
-import { todoService } from '../lib/database'
+import { todoService, enrollmentService } from '../lib/database'
+import CourseExploration from './CourseExploration'
+import ExploreUsers from './ExploreUsers'
 
 export default function StudentDashboard({ user, onLogout }) {
   const [todos, setTodos] = useState([])
   const [newTodo, setNewTodo] = useState('')
   const [loading, setLoading] = useState(true)
+  const [showCourseExploration, setShowCourseExploration] = useState(false)
+  const [showExploreUsers, setShowExploreUsers] = useState(false)
+  const [enrolledCourses, setEnrolledCourses] = useState([])
+  const [coursesLoading, setCoursesLoading] = useState(true)
 
-  // Load todos from database
+  // Load todos and enrolled courses from database
   useEffect(() => {
     if (user?.id) {
       loadTodos()
+      loadEnrolledCourses()
     }
   }, [user?.id])
 
@@ -24,6 +31,20 @@ export default function StudentDashboard({ user, onLogout }) {
       console.error('Error loading todos:', error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const loadEnrolledCourses = async () => {
+    if (!user?.id) return
+    
+    try {
+      setCoursesLoading(true)
+      const { enrollments } = await enrollmentService.getStudentCourses(user.id)
+      setEnrolledCourses(enrollments || [])
+    } catch (error) {
+      console.error('Error loading enrolled courses:', error)
+    } finally {
+      setCoursesLoading(false)
     }
   }
 
@@ -67,6 +88,36 @@ export default function StudentDashboard({ user, onLogout }) {
     }
   }
 
+  const handleExploreCourses = () => {
+    setShowCourseExploration(true)
+  }
+
+  const handleExploreUsers = () => {
+    setShowExploreUsers(true)
+  }
+
+  const handleBackToDashboard = () => {
+    setShowCourseExploration(false)
+    setShowExploreUsers(false)
+    // Reload enrolled courses when coming back from exploration
+    loadEnrolledCourses()
+  }
+
+  const handleStartChat = (targetUser) => {
+    // TODO: Implement chat functionality
+    alert(`Starting chat with ${targetUser.name} (${targetUser.role}) - Chat feature coming soon!`)
+  }
+
+  // Show course exploration if requested
+  if (showCourseExploration) {
+    return <CourseExploration user={user} onBack={handleBackToDashboard} />
+  }
+
+  // Show explore users if requested
+  if (showExploreUsers) {
+    return <ExploreUsers user={user} onBack={handleBackToDashboard} onStartChat={handleStartChat} />
+  }
+
   return (
     <div className="app">
       {/* Header */}
@@ -98,16 +149,47 @@ export default function StudentDashboard({ user, onLogout }) {
               </p>
             </div>
 
+            {/* Action Buttons */}
+            <div className="action-buttons">
+              <button onClick={handleExploreCourses} className="btn btn-primary btn-large">
+                <span className="btn-icon">🔍</span>
+                Explore Courses
+              </button>
+              <button onClick={handleExploreUsers} className="btn btn-outline btn-large">
+                <span className="btn-icon">👥</span>
+                Explore Users
+              </button>
+            </div>
+
             {/* Dashboard Grid */}
             <div className="dashboard-grid">
-              {/* Learning Progress Section */}
+              {/* Enrolled Courses Section */}
               <div className="dashboard-card">
                 <div className="card-header">
-                  <h3>Learning Progress</h3>
-                  <span className="progress-count">Coming Soon</span>
+                  <h3>Enrolled Courses</h3>
+                  <span className="course-count">{enrolledCourses.length} courses</span>
                 </div>
-                <div className="progress-content">
-                  <p className="empty-state">Your learning progress will be tracked here as you enroll in courses.</p>
+                <div className="courses-list">
+                  {coursesLoading ? (
+                    <p className="loading-state">Loading courses...</p>
+                  ) : enrolledCourses.length === 0 ? (
+                    <p className="empty-state">No enrolled courses yet. Explore courses to get started!</p>
+                  ) : (
+                    enrolledCourses.map(enrollment => (
+                      <div key={enrollment.id} className="course-item">
+                        <div className="course-info">
+                          <h4>{enrollment.courses?.title || 'Unknown Course'}</h4>
+                          <p>Teacher: {enrollment.courses?.users?.name || 'Unknown'}</p>
+                          <p>Enrolled: {new Date(enrollment.enrolled_at).toLocaleDateString()}</p>
+                        </div>
+                        <div className="course-status">
+                          <span className={`status-badge ${enrollment.status}`}>
+                            {enrollment.status}
+                          </span>
+                        </div>
+                      </div>
+                    ))
+                  )}
                 </div>
               </div>
 

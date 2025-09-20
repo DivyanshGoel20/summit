@@ -290,3 +290,141 @@ export const todoService = {
     }
   }
 }
+
+// Messaging operations
+export const messagingService = {
+  // Get or create conversation between two users
+  async getOrCreateConversation(user1Id, user2Id) {
+    try {
+      // First try to find existing conversation
+      const { data: existingConversation, error: findError } = await supabase
+        .from('conversations')
+        .select('*')
+        .or(`and(participant1_id.eq.${user1Id},participant2_id.eq.${user2Id}),and(participant1_id.eq.${user2Id},participant2_id.eq.${user1Id})`)
+        .single()
+
+      if (existingConversation) {
+        return { conversation: existingConversation }
+      }
+
+      // Create new conversation
+      const { data: newConversation, error: createError } = await supabase
+        .from('conversations')
+        .insert([{
+          participant1_id: user1Id,
+          participant2_id: user2Id
+        }])
+        .select()
+        .single()
+
+      if (createError) throw createError
+      return { conversation: newConversation }
+    } catch (error) {
+      throw error
+    }
+  },
+
+  // Get all conversations for a user
+  async getUserConversations(userId) {
+    try {
+      const { data, error } = await supabase
+        .from('conversations')
+        .select(`
+          *,
+          participant1:users!conversations_participant1_id_fkey(id, name, username, role),
+          participant2:users!conversations_participant2_id_fkey(id, name, username, role),
+          messages(id, content, sender_id, created_at, is_read)
+        `)
+        .or(`participant1_id.eq.${userId},participant2_id.eq.${userId}`)
+        .order('updated_at', { ascending: false })
+
+      if (error) throw error
+      return { conversations: data }
+    } catch (error) {
+      throw error
+    }
+  },
+
+  // Get messages for a conversation
+  async getConversationMessages(conversationId) {
+    try {
+      const { data, error } = await supabase
+        .from('messages')
+        .select(`
+          *,
+          sender:users!messages_sender_id_fkey(id, name, username, role)
+        `)
+        .eq('conversation_id', conversationId)
+        .order('created_at', { ascending: true })
+
+      if (error) throw error
+      return { messages: data }
+    } catch (error) {
+      throw error
+    }
+  },
+
+  // Send a message
+  async sendMessage(conversationId, senderId, content, messageType = 'text') {
+    try {
+      const { data, error } = await supabase
+        .from('messages')
+        .insert([{
+          conversation_id: conversationId,
+          sender_id: senderId,
+          content: content,
+          message_type: messageType
+        }])
+        .select()
+        .single()
+
+      if (error) throw error
+
+      // Update conversation updated_at
+      await supabase
+        .from('conversations')
+        .update({ updated_at: new Date().toISOString() })
+        .eq('id', conversationId)
+
+      return { message: data }
+    } catch (error) {
+      throw error
+    }
+  },
+
+  // Mark messages as read
+  async markMessagesAsRead(conversationId, userId) {
+    try {
+      const { error } = await supabase
+        .from('messages')
+        .update({ is_read: true })
+        .eq('conversation_id', conversationId)
+        .neq('sender_id', userId)
+
+      if (error) throw error
+      return { success: true }
+    } catch (error) {
+      throw error
+    }
+  },
+
+  // Get unread message count for a user
+  async getUnreadCount(userId) {
+    try {
+      const { data, error } = await supabase
+        .from('messages')
+        .select(`
+          id,
+          conversations!inner(participant1_id, participant2_id)
+        `)
+        .eq('is_read', false)
+        .neq('sender_id', userId)
+        .or(`conversations.participant1_id.eq.${userId},conversations.participant2_id.eq.${userId}`)
+
+      if (error) throw error
+      return { unreadCount: data?.length || 0 }
+    } catch (error) {
+      throw error
+    }
+  }
+}

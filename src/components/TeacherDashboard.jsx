@@ -1,11 +1,15 @@
 import { useState, useEffect } from 'react'
 import { todoService, courseService } from '../lib/database'
+import CreateCourseForm from './CreateCourseForm'
+import ExploreUsers from './ExploreUsers'
 
 export default function TeacherDashboard({ user, onLogout }) {
   const [todos, setTodos] = useState([])
   const [newTodo, setNewTodo] = useState('')
   const [courses, setCourses] = useState([])
   const [loading, setLoading] = useState(true)
+  const [showCreateCourse, setShowCreateCourse] = useState(false)
+  const [showExploreUsers, setShowExploreUsers] = useState(false)
 
   // Load todos and courses from database
   useEffect(() => {
@@ -73,13 +77,29 @@ export default function TeacherDashboard({ user, onLogout }) {
   }
 
   const handleCreateCourse = () => {
-    // TODO: Implement create course functionality
-    alert('Create Course functionality will be implemented soon!')
+    setShowCreateCourse(true)
   }
 
-  const handleViewCourses = () => {
-    // TODO: Implement view courses functionality
-    alert('View Courses functionality will be implemented soon!')
+  const handleCourseCreated = (newCourse) => {
+    setCourses([newCourse, ...courses])
+    setShowCreateCourse(false)
+  }
+
+  const handleCancelCreateCourse = () => {
+    setShowCreateCourse(false)
+  }
+
+  const handleExploreUsers = () => {
+    setShowExploreUsers(true)
+  }
+
+  const handleBackToDashboard = () => {
+    setShowExploreUsers(false)
+  }
+
+  const handleStartChat = (targetUser) => {
+    // TODO: Implement chat functionality
+    alert(`Starting chat with ${targetUser.name} (${targetUser.role}) - Chat feature coming soon!`)
   }
 
   const handleCourseClick = (courseId) => {
@@ -87,8 +107,22 @@ export default function TeacherDashboard({ user, onLogout }) {
     alert(`Course ${courseId} details will be implemented soon!`)
   }
 
+  // Show explore users if requested
+  if (showExploreUsers) {
+    return <ExploreUsers user={user} onBack={handleBackToDashboard} onStartChat={handleStartChat} />
+  }
+
   return (
     <div className="app">
+      {/* Course Creation Modal */}
+      {showCreateCourse && (
+        <CreateCourseForm
+          user={user}
+          onCourseCreated={handleCourseCreated}
+          onCancel={handleCancelCreateCourse}
+        />
+      )}
+
       {/* Header */}
       <header className="header">
         <div className="container">
@@ -124,9 +158,9 @@ export default function TeacherDashboard({ user, onLogout }) {
                 <span className="btn-icon">➕</span>
                 Create New Course
               </button>
-              <button onClick={handleViewCourses} className="btn btn-outline btn-large">
-                <span className="btn-icon">📚</span>
-                Your Courses
+              <button onClick={handleExploreUsers} className="btn btn-outline btn-large">
+                <span className="btn-icon">👥</span>
+                Explore Users
               </button>
             </div>
 

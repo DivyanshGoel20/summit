@@ -3,6 +3,8 @@ import { auth } from './lib/auth'
 import LoginPage from './components/LoginPage'
 import SignupPage from './components/SignupPage'
 import Dashboard from './components/Dashboard'
+import StudentDashboard from './components/StudentDashboard'
+import TeacherDashboard from './components/TeacherDashboard'
 import './index.css'
 
 export default function App() {
@@ -75,7 +77,14 @@ export default function App() {
   }
 
   if (currentPage === 'dashboard') {
-    return <Dashboard user={user} onLogout={handleLogout} />
+    // Show different dashboard based on user role
+    if (user?.role === 'teacher') {
+      return <TeacherDashboard user={user} onLogout={handleLogout} />
+    } else if (user?.role === 'student') {
+      return <StudentDashboard user={user} onLogout={handleLogout} />
+    } else {
+      return <Dashboard user={user} onLogout={handleLogout} />
+    }
   }
 
   // Home page

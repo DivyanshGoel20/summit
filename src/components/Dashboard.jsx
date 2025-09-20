@@ -27,14 +27,11 @@ export default function Dashboard({ user, onLogout }) {
               You have successfully logged in to VirtuHack.
             </p>
             <p>
-              This is where your learning journey begins. Explore our features and start your educational adventure.
+              This is where your {user?.role === 'teacher' ? 'teaching' : 'learning'} journey begins. Explore our features and start your educational adventure.
             </p>
             <div className="dashboard-actions">
               <button className="btn btn-primary">
-                Start Learning
-              </button>
-              <button className="btn btn-outline">
-                Explore Courses
+                {user?.role === 'teacher' ? 'Start Teaching' : 'Start Learning'}
               </button>
             </div>
           </div>

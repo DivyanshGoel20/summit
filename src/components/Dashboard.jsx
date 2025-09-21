@@ -5,12 +5,16 @@ export default function Dashboard({ user, onLogout }) {
       <header className="header">
         <div className="container">
           <div className="header-content">
-            <h1>VirtuHack</h1>
-            <div className="user-info">
-              <span>Welcome, {user?.name || 'User'} ({user?.role || 'user'})</span>
-              <button onClick={onLogout} className="btn btn-secondary">
-                Logout
-              </button>
+            <div className="header-left">
+              <h1>VirtuHack</h1>
+            </div>
+            <div className="header-right">
+              <div className="user-info">
+                <span>Welcome, {user?.name || 'User'} ({user?.role || 'user'})</span>
+                <button onClick={onLogout} className="btn btn-secondary">
+                  Logout
+                </button>
+              </div>
             </div>
           </div>
         </div>

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { todoService, enrollmentService } from '../lib/database'
 import CourseExploration from './CourseExploration'
 import ExploreUsers from './ExploreUsers'
+import Chat from './Chat'
 
 export default function StudentDashboard({ user, onLogout }) {
   const [todos, setTodos] = useState([])
@@ -9,6 +10,8 @@ export default function StudentDashboard({ user, onLogout }) {
   const [loading, setLoading] = useState(true)
   const [showCourseExploration, setShowCourseExploration] = useState(false)
   const [showExploreUsers, setShowExploreUsers] = useState(false)
+  const [showChat, setShowChat] = useState(false)
+  const [chatWithUser, setChatWithUser] = useState(null)
   const [enrolledCourses, setEnrolledCourses] = useState([])
   const [coursesLoading, setCoursesLoading] = useState(true)
 
@@ -99,18 +102,25 @@ export default function StudentDashboard({ user, onLogout }) {
   const handleBackToDashboard = () => {
     setShowCourseExploration(false)
     setShowExploreUsers(false)
+    setShowChat(false)
+    setChatWithUser(null)
     // Reload enrolled courses when coming back from exploration
     loadEnrolledCourses()
   }
 
   const handleStartChat = (targetUser) => {
-    // TODO: Implement chat functionality
-    alert(`Starting chat with ${targetUser.name} (${targetUser.role}) - Chat feature coming soon!`)
+    setChatWithUser(targetUser)
+    setShowChat(true)
   }
 
   // Show course exploration if requested
   if (showCourseExploration) {
     return <CourseExploration user={user} onBack={handleBackToDashboard} />
+  }
+
+  // Show chat if requested
+  if (showChat) {
+    return <Chat currentUser={user} onBack={handleBackToDashboard} startWithUser={chatWithUser} />
   }
 
   // Show explore users if requested
@@ -124,12 +134,16 @@ export default function StudentDashboard({ user, onLogout }) {
       <header className="header">
         <div className="container">
           <div className="header-content">
-            <h1>VirtuHack</h1>
-            <div className="user-info">
-              <span>Welcome, {user?.name || 'User'} (Student)</span>
-              <button onClick={onLogout} className="btn btn-secondary">
-                Logout
-              </button>
+            <div className="header-left">
+              <h1>VirtuHack</h1>
+            </div>
+            <div className="header-right">
+              <div className="user-info">
+                <span>Welcome, {user?.name || 'User'} (Student)</span>
+                <button onClick={onLogout} className="btn btn-secondary">
+                  Logout
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -158,6 +172,10 @@ export default function StudentDashboard({ user, onLogout }) {
               <button onClick={handleExploreUsers} className="btn btn-outline btn-large">
                 <span className="btn-icon">👥</span>
                 Explore Users
+              </button>
+              <button onClick={() => setShowChat(true)} className="btn btn-outline btn-large">
+                <span className="btn-icon">💬</span>
+                Messages
               </button>
             </div>
 

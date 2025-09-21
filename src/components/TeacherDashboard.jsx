@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { todoService, courseService } from '../lib/database'
 import CreateCourseForm from './CreateCourseForm'
 import ExploreUsers from './ExploreUsers'
+import Chat from './Chat'
 
 export default function TeacherDashboard({ user, onLogout }) {
   const [todos, setTodos] = useState([])
@@ -10,6 +11,8 @@ export default function TeacherDashboard({ user, onLogout }) {
   const [loading, setLoading] = useState(true)
   const [showCreateCourse, setShowCreateCourse] = useState(false)
   const [showExploreUsers, setShowExploreUsers] = useState(false)
+  const [showChat, setShowChat] = useState(false)
+  const [chatWithUser, setChatWithUser] = useState(null)
 
   // Load todos and courses from database
   useEffect(() => {
@@ -95,16 +98,23 @@ export default function TeacherDashboard({ user, onLogout }) {
 
   const handleBackToDashboard = () => {
     setShowExploreUsers(false)
+    setShowChat(false)
+    setChatWithUser(null)
   }
 
   const handleStartChat = (targetUser) => {
-    // TODO: Implement chat functionality
-    alert(`Starting chat with ${targetUser.name} (${targetUser.role}) - Chat feature coming soon!`)
+    setChatWithUser(targetUser)
+    setShowChat(true)
   }
 
   const handleCourseClick = (courseId) => {
     // TODO: Implement course detail view
     alert(`Course ${courseId} details will be implemented soon!`)
+  }
+
+  // Show chat if requested
+  if (showChat) {
+    return <Chat currentUser={user} onBack={handleBackToDashboard} startWithUser={chatWithUser} />
   }
 
   // Show explore users if requested
@@ -127,12 +137,16 @@ export default function TeacherDashboard({ user, onLogout }) {
       <header className="header">
         <div className="container">
           <div className="header-content">
-            <h1>VirtuHack</h1>
-            <div className="user-info">
-              <span>Welcome, {user?.name || 'User'} (Teacher)</span>
-              <button onClick={onLogout} className="btn btn-secondary">
-                Logout
-              </button>
+            <div className="header-left">
+              <h1>VirtuHack</h1>
+            </div>
+            <div className="header-right">
+              <div className="user-info">
+                <span>Welcome, {user?.name || 'User'} (Teacher)</span>
+                <button onClick={onLogout} className="btn btn-secondary">
+                  Logout
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -161,6 +175,10 @@ export default function TeacherDashboard({ user, onLogout }) {
               <button onClick={handleExploreUsers} className="btn btn-outline btn-large">
                 <span className="btn-icon">👥</span>
                 Explore Users
+              </button>
+              <button onClick={() => setShowChat(true)} className="btn btn-outline btn-large">
+                <span className="btn-icon">💬</span>
+                Messages
               </button>
             </div>
 

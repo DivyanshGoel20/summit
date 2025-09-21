@@ -14,6 +14,7 @@ export default function Chat({ currentUser, onBack, startWithUser = null }) {
   console.log('Chat component rendered with currentUser:', currentUser)
   console.log('Current view:', currentView)
   console.log('Start with user:', startWithUser)
+  console.log('Available views: list, chat, explore')
 
   // Don't render if no currentUser
   if (!currentUser?.id) {
@@ -48,11 +49,13 @@ export default function Chat({ currentUser, onBack, startWithUser = null }) {
   }, [startWithUser, currentUser?.id])
 
   const handleStartChat = async (user, existingConversation = null) => {
+    console.log('handleStartChat called with:', user, existingConversation)
     try {
       let conversation = existingConversation
 
       // If no existing conversation, create or get one
       if (!conversation) {
+        console.log('Creating new conversation between:', currentUser.id, user.id)
         const { conversation: newConversation, error } = await chatService.getOrCreateConversation(
           currentUser.id,
           user.id
@@ -64,6 +67,9 @@ export default function Chat({ currentUser, onBack, startWithUser = null }) {
         }
 
         conversation = newConversation
+        console.log('Created conversation:', conversation)
+      } else {
+        console.log('Using existing conversation:', conversation)
       }
 
       setSelectedUser(user)
@@ -90,7 +96,10 @@ export default function Chat({ currentUser, onBack, startWithUser = null }) {
   }
 
   const handleStartNewChat = () => {
+    console.log('handleStartNewChat called, setting view to explore')
+    console.log('Current view before:', currentView)
     setCurrentView('explore')
+    console.log('View should now be set to explore')
   }
 
   const handleBackFromExplore = () => {

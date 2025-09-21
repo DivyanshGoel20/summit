@@ -1525,10 +1525,16 @@ body {
 .chat-list-header {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  justify-content: space-between;
   padding: 1rem 1.5rem;
   background: #f8fafc;
   border-bottom: 1px solid #e5e7eb;
+}
+
+.chat-list-header h2 {
+  flex: 1;
+  margin: 0;
+  text-align: center;
 }
 
 .back-btn {
@@ -1547,12 +1553,7 @@ body {
   color: #374151;
 }
 
-.chat-list-header h2 {
-  margin: 0;
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #1f2937;
-}
+/* h2 styles moved to main header rule above */
 
 .conversations-list {
   flex: 1;
@@ -1809,11 +1810,16 @@ body {
   background: #2563eb;
 }
 
-/* New Chat Button */
+/* New Chat Button - Force Override */
 .new-chat-btn {
   margin-left: auto !important;
-  padding: 0.5rem 1rem !important;
-  font-size: 0.875rem !important;
+  padding: 0.5rem 0.75rem !important;
+  font-size: 0.8rem !important;
   min-width: auto !important;
+  max-width: 120px !important;
   white-space: nowrap !important;
+  flex-shrink: 0 !important;
+  width: auto !important;
+  height: 36px !important;
+  line-height: 1 !important;
 }

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { chatService } from '../lib/chatService'
 
-export default function ChatList({ currentUser, onStartChat, onBack }) {
+export default function ChatList({ currentUser, onStartChat, onNewChat, onBack }) {
   const [conversations, setConversations] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -139,9 +139,14 @@ export default function ChatList({ currentUser, onStartChat, onBack }) {
   }
 
   const handleStartChat = (conversation) => {
+    console.log('handleStartChat in ChatList called with:', conversation)
     const otherUser = getOtherUser(conversation)
+    console.log('Other user found:', otherUser)
     if (onStartChat) {
+      console.log('Calling onStartChat with:', otherUser, conversation)
       onStartChat(otherUser, conversation)
+    } else {
+      console.error('onStartChat function not provided to ChatList')
     }
   }
 
@@ -169,7 +174,16 @@ export default function ChatList({ currentUser, onStartChat, onBack }) {
         </button>
         <h2>Messages {unreadCount > 0 && `(${unreadCount})`}</h2>
         <button 
-          onClick={() => onNewChat && onNewChat()} 
+          onClick={() => {
+            console.log('New Chat button clicked, onNewChat:', onNewChat)
+            console.log('onNewChat type:', typeof onNewChat)
+            if (onNewChat) {
+              console.log('Calling onNewChat function')
+              onNewChat()
+            } else {
+              console.error('onNewChat function not provided')
+            }
+          }} 
           className="btn btn-primary btn-small new-chat-btn"
         >
           + New Chat
@@ -196,9 +210,14 @@ export default function ChatList({ currentUser, onStartChat, onBack }) {
                 key={conversation.id}
                 className="conversation-item"
                 onClick={() => {
+                  console.log('Conversation clicked:', conversation)
                   const otherUser = getOtherUser(conversation)
+                  console.log('Other user:', otherUser)
                   if (otherUser) {
-                    handleStartChat(otherUser, conversation)
+                    console.log('Calling handleStartChat with:', otherUser, conversation)
+                    handleStartChat(conversation)
+                  } else {
+                    console.error('No other user found for conversation')
                   }
                 }}
               >

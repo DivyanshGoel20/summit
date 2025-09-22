@@ -17,13 +17,21 @@ export default function CourseExploration({ user, onBack }) {
   // Check enrollment status for each course
   useEffect(() => {
     if (courses.length > 0 && user?.id) {
-      checkEnrollmentStatus()
+      // Only check if courses don't already have enrollment status
+      const needsEnrollmentCheck = courses.some(course => course.isEnrolled === undefined)
+      if (needsEnrollmentCheck) {
+        checkEnrollmentStatus()
+      }
     }
-  }, [courses, user?.id])
+  }, [courses.length, user?.id]) // Only depend on length, not the entire courses array
 
   const checkEnrollmentStatus = async () => {
     const updatedCourses = await Promise.all(
       courses.map(async (course) => {
+        // Skip if already checked
+        if (course.isEnrolled !== undefined) {
+          return course
+        }
         const { isEnrolled } = await enrollmentService.isEnrolled(user.id, course.id)
         return { ...course, isEnrolled }
       })

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { chapterService } from '../lib/database'
+import ChallengeList from './ChallengeList'
 
 export default function CoursePlayer({ course, user, onBack }) {
   const [chapters, setChapters] = useState([])
@@ -8,6 +9,7 @@ export default function CoursePlayer({ course, user, onBack }) {
   const [error, setError] = useState('')
   const [selectedAnswers, setSelectedAnswers] = useState({})
   const [quizResults, setQuizResults] = useState({})
+  const [showChallenges, setShowChallenges] = useState(false)
 
   useEffect(() => {
     if (course?.id) {
@@ -58,6 +60,14 @@ export default function CoursePlayer({ course, user, onBack }) {
       const isCorrect = selected === correctIndex
       setQuizResults(prev => ({ ...prev, [content.id]: isCorrect }))
     }
+  }
+
+  const handleShowChallenges = () => {
+    setShowChallenges(true)
+  }
+
+  const handleBackFromChallenges = () => {
+    setShowChallenges(false)
   }
 
   const renderContent = (content) => {
@@ -158,6 +168,11 @@ export default function CoursePlayer({ course, user, onBack }) {
     }
   }
 
+  // Show challenges if requested
+  if (showChallenges) {
+    return <ChallengeList courseId={course?.id} user={user} onBack={handleBackFromChallenges} />
+  }
+
   if (loading) {
     return (
       <div className="course-player">
@@ -222,8 +237,13 @@ export default function CoursePlayer({ course, user, onBack }) {
           ← Back to Course
         </button>
         <h1>{course?.title}</h1>
-        <div className="course-progress">
-          Chapter {currentChapterIndex + 1} of {chapters.length}
+        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+          <div className="course-progress">
+            Chapter {currentChapterIndex + 1} of {chapters.length}
+          </div>
+          <button onClick={handleShowChallenges} className="btn btn-outline btn-small" style={{ width: 'auto', maxWidth: '200px' }}>
+            🎯 Student Challenges
+          </button>
         </div>
       </div>
 

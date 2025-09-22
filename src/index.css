@@ -2160,3 +2160,109 @@ body {
     width: 100%;
   }
 }
+
+/* Challenge Components */
+.challenge-item {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  transition: all 0.2s ease;
+}
+
+.challenge-item:hover {
+  border-color: #3b82f6;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.challenge-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.5rem;
+}
+
+.challenge-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+}
+
+.challenge-meta {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin-top: 0.25rem;
+}
+
+.challenge-type-badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.challenge-type-quiz {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.challenge-type-coding {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.challenge-type-question {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.challenge-type-discussion {
+  background-color: #e0e7ff;
+  color: #3730a3;
+}
+
+.difficulty-badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.difficulty-easy {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.difficulty-medium {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.difficulty-hard {
+  background-color: #fecaca;
+  color: #991b1b;
+}
+
+.submission-status {
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.submission-correct {
+  color: #16a34a;
+}
+
+.submission-incorrect {
+  color: #dc2626;
+}
+
+.submission-not-attempted {
+  color: #6b7280;
+}

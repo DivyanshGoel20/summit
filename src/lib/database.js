@@ -187,10 +187,9 @@ export const enrollmentService = {
         .eq('student_id', studentId)
         .eq('course_id', courseId)
         .eq('status', 'active')
-        .single()
 
-      if (error && error.code !== 'PGRST116') throw error
-      return { isEnrolled: !!data }
+      if (error) throw error
+      return { isEnrolled: data && data.length > 0 }
     } catch (error) {
       throw error
     }
@@ -608,7 +607,6 @@ export const challengeService = {
             id,
             student_id,
             is_correct,
-            points_earned,
             submitted_at
           )
         `)
@@ -638,8 +636,6 @@ export const challengeService = {
             id,
             student_id,
             is_correct,
-            points_earned,
-            feedback,
             submitted_at
           )
         `)
@@ -704,9 +700,7 @@ export const submissionService = {
           *,
           student_challenges!challenge_submissions_challenge_id_fkey (
             id,
-            title,
-            points,
-            challenge_type
+            title
           )
         `)
         .single()
@@ -726,10 +720,7 @@ export const submissionService = {
           *,
           student_challenges!challenge_submissions_challenge_id_fkey (
             id,
-            title,
-            challenge_type,
-            points,
-            difficulty
+            title
           )
         `)
         .eq('student_id', studentId)

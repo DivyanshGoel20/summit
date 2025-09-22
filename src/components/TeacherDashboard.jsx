@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { todoService, courseService } from '../lib/database'
+import CourseDetails from './CourseDetails'
 import CreateCourseForm from './CreateCourseForm'
 import ExploreUsers from './ExploreUsers'
 import Chat from './Chat'
@@ -13,6 +14,7 @@ export default function TeacherDashboard({ user, onLogout }) {
   const [showExploreUsers, setShowExploreUsers] = useState(false)
   const [showChat, setShowChat] = useState(false)
   const [chatWithUser, setChatWithUser] = useState(null)
+  const [selectedCourseId, setSelectedCourseId] = useState(null)
 
   // Load todos and courses from database
   useEffect(() => {
@@ -108,8 +110,12 @@ export default function TeacherDashboard({ user, onLogout }) {
   }
 
   const handleCourseClick = (courseId) => {
-    // TODO: Implement course detail view
-    alert(`Course ${courseId} details will be implemented soon!`)
+    setSelectedCourseId(courseId)
+  }
+
+  // Show course details
+  if (selectedCourseId) {
+    return <CourseDetails user={user} courseId={selectedCourseId} onBack={() => setSelectedCourseId(null)} />
   }
 
   // Show chat if requested

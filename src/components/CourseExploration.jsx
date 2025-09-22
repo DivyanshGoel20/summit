@@ -1,11 +1,14 @@
 import { useState, useEffect } from 'react'
 import { courseService, enrollmentService } from '../lib/database'
 
+import CourseDetails from './CourseDetails'
+
 export default function CourseExploration({ user, onBack }) {
   const [courses, setCourses] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [enrolling, setEnrolling] = useState(null) // Track which course is being enrolled
+  const [selectedCourseId, setSelectedCourseId] = useState(null)
 
   useEffect(() => {
     loadCourses()
@@ -83,6 +86,16 @@ export default function CourseExploration({ user, onBack }) {
     }
   }
 
+  if (selectedCourseId) {
+    return (
+      <CourseDetails
+        user={user}
+        courseId={selectedCourseId}
+        onBack={() => setSelectedCourseId(null)}
+      />
+    )
+  }
+
   return (
     <div className="course-exploration">
       <div className="exploration-header">
@@ -140,6 +153,13 @@ export default function CourseExploration({ user, onBack }) {
               </div>
 
               <div className="course-actions">
+                <button
+                  onClick={() => setSelectedCourseId(course.id)}
+                  className="btn btn-outline"
+                  style={{ marginRight: '0.5rem' }}
+                >
+                  View Details
+                </button>
                 <button
                   onClick={() => handleEnroll(course.id)}
                   disabled={enrolling === course.id || course.isEnrolled}

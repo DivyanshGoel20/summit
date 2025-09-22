@@ -3,6 +3,7 @@ import { todoService, enrollmentService } from '../lib/database'
 import CourseExploration from './CourseExploration'
 import ExploreUsers from './ExploreUsers'
 import Chat from './Chat'
+import CourseDetails from './CourseDetails'
 
 export default function StudentDashboard({ user, onLogout }) {
   const [todos, setTodos] = useState([])
@@ -14,6 +15,7 @@ export default function StudentDashboard({ user, onLogout }) {
   const [chatWithUser, setChatWithUser] = useState(null)
   const [enrolledCourses, setEnrolledCourses] = useState([])
   const [coursesLoading, setCoursesLoading] = useState(true)
+  const [selectedCourseId, setSelectedCourseId] = useState(null)
 
   // Load todos and enrolled courses from database
   useEffect(() => {
@@ -43,7 +45,11 @@ export default function StudentDashboard({ user, onLogout }) {
     try {
       setCoursesLoading(true)
       const { enrollments } = await enrollmentService.getStudentCourses(user.id)
-      setEnrolledCourses(enrollments || [])
+      // Filter out courses that are no longer active (draft courses)
+      const activeEnrollments = (enrollments || []).filter(enrollment => 
+        enrollment.courses?.status === 'active' && enrollment.status === 'active'
+      )
+      setEnrolledCourses(activeEnrollments)
     } catch (error) {
       console.error('Error loading enrolled courses:', error)
     } finally {
@@ -104,13 +110,23 @@ export default function StudentDashboard({ user, onLogout }) {
     setShowExploreUsers(false)
     setShowChat(false)
     setChatWithUser(null)
+    setSelectedCourseId(null)
     // Reload enrolled courses when coming back from exploration
     loadEnrolledCourses()
+  }
+
+  const handleCourseClick = (courseId) => {
+    setSelectedCourseId(courseId)
   }
 
   const handleStartChat = (targetUser) => {
     setChatWithUser(targetUser)
     setShowChat(true)
+  }
+
+  // Show course details if requested
+  if (selectedCourseId) {
+    return <CourseDetails user={user} courseId={selectedCourseId} onBack={handleBackToDashboard} />
   }
 
   // Show course exploration if requested
@@ -194,7 +210,12 @@ export default function StudentDashboard({ user, onLogout }) {
                     <p className="empty-state">No enrolled courses yet. Explore courses to get started!</p>
                   ) : (
                     enrolledCourses.map(enrollment => (
-                      <div key={enrollment.id} className="course-item">
+                      <div 
+                        key={enrollment.id} 
+                        className="course-item"
+                        onClick={() => handleCourseClick(enrollment.courses?.id)}
+                        style={{ cursor: 'pointer' }}
+                      >
                         <div className="course-info">
                           <h4>{enrollment.courses?.title || 'Unknown Course'}</h4>
                           <p>Teacher: {enrollment.courses?.users?.name || 'Unknown'}</p>

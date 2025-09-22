@@ -428,3 +428,143 @@ export const messagingService = {
     }
   }
 }
+
+// Chapter operations
+export const chapterService = {
+  // Create a new chapter
+  async createChapter(chapterData) {
+    try {
+      const { data, error } = await supabase
+        .from('chapters')
+        .insert([chapterData])
+        .select()
+        .single()
+
+      if (error) throw error
+      return { chapter: data }
+    } catch (error) {
+      throw error
+    }
+  },
+
+  // Get all chapters for a course
+  async getCourseChapters(courseId) {
+    try {
+      const { data, error } = await supabase
+        .from('chapters')
+        .select(`
+          *,
+          chapter_content(*)
+        `)
+        .eq('course_id', courseId)
+        .order('order_index', { ascending: true })
+
+      if (error) throw error
+      return { chapters: data }
+    } catch (error) {
+      throw error
+    }
+  },
+
+  // Get chapter details with content
+  async getChapterDetails(chapterId) {
+    try {
+      const { data, error } = await supabase
+        .from('chapters')
+        .select(`
+          *,
+          chapter_content(*)
+        `)
+        .eq('id', chapterId)
+        .single()
+
+      if (error) throw error
+      return { chapter: data }
+    } catch (error) {
+      throw error
+    }
+  },
+
+  // Update chapter
+  async updateChapter(chapterId, updates) {
+    try {
+      const { data, error } = await supabase
+        .from('chapters')
+        .update(updates)
+        .eq('id', chapterId)
+        .select()
+        .single()
+
+      if (error) throw error
+      return { chapter: data }
+    } catch (error) {
+      throw error
+    }
+  },
+
+  // Delete chapter
+  async deleteChapter(chapterId) {
+    try {
+      const { error } = await supabase
+        .from('chapters')
+        .delete()
+        .eq('id', chapterId)
+
+      if (error) throw error
+      return { success: true }
+    } catch (error) {
+      throw error
+    }
+  }
+}
+
+// Chapter content operations
+export const contentService = {
+  // Add content to chapter
+  async addContent(contentData) {
+    try {
+      const { data, error } = await supabase
+        .from('chapter_content')
+        .insert([contentData])
+        .select()
+        .single()
+
+      if (error) throw error
+      return { content: data }
+    } catch (error) {
+      throw error
+    }
+  },
+
+  // Update content
+  async updateContent(contentId, updates) {
+    try {
+      const { data, error } = await supabase
+        .from('chapter_content')
+        .update(updates)
+        .eq('id', contentId)
+        .select()
+        .single()
+
+      if (error) throw error
+      return { content: data }
+    } catch (error) {
+      throw error
+    }
+  },
+
+  // Delete content
+  async deleteContent(contentId) {
+    try {
+      const { error } = await supabase
+        .from('chapter_content')
+        .delete()
+        .eq('id', contentId)
+
+      if (error) throw error
+      return { success: true }
+    } catch (error) {
+      throw error
+    }
+  }
+}

@@ -131,6 +131,7 @@ export default function ChapterForm({ courseId, chapter, onSave, onCancel }) {
             type="button"
             onClick={() => removeContentBlock(index)}
             className="btn btn-secondary btn-small"
+            style={{ width: 'auto', maxWidth: '140px' }}
           >
             Remove
           </button>
@@ -243,6 +244,21 @@ export default function ChapterForm({ courseId, chapter, onSave, onCancel }) {
               rows="4"
               style={{ marginTop: '0.5rem' }}
             />
+            <div style={{ marginTop: '0.5rem' }}>
+              <label style={{ display: 'block', fontWeight: 600, marginBottom: '0.25rem' }}>Correct Answer</label>
+              <select
+                value={typeof block.metadata?.correctIndex === 'number' ? block.metadata.correctIndex : ''}
+                onChange={(e) => updateBlock({ 
+                  metadata: { ...block.metadata, correctIndex: e.target.value === '' ? undefined : Number(e.target.value) }
+                })}
+                className="form-select"
+              >
+                <option value="">Select correct option</option>
+                {block.content.split('\n').filter(o => o.trim()).map((_, idx) => (
+                  <option key={idx} value={idx}>Option {idx + 1}</option>
+                ))}
+              </select>
+            </div>
           </div>
         )}
       </div>
@@ -308,6 +324,7 @@ export default function ChapterForm({ courseId, chapter, onSave, onCancel }) {
                   type="button"
                   onClick={() => addContentBlock('text')}
                   className="btn btn-outline btn-small"
+                  style={{ width: 'auto', maxWidth: '140px' }}
                 >
                   + Add Text
                 </button>
@@ -315,6 +332,7 @@ export default function ChapterForm({ courseId, chapter, onSave, onCancel }) {
                   type="button"
                   onClick={() => addContentBlock('image')}
                   className="btn btn-outline btn-small"
+                  style={{ width: 'auto', maxWidth: '140px' }}
                 >
                   + Add Image
                 </button>
@@ -322,6 +340,7 @@ export default function ChapterForm({ courseId, chapter, onSave, onCancel }) {
                   type="button"
                   onClick={() => addContentBlock('video')}
                   className="btn btn-outline btn-small"
+                  style={{ width: 'auto', maxWidth: '140px' }}
                 >
                   + Add Video
                 </button>
@@ -329,6 +348,7 @@ export default function ChapterForm({ courseId, chapter, onSave, onCancel }) {
                   type="button"
                   onClick={() => addContentBlock('code')}
                   className="btn btn-outline btn-small"
+                  style={{ width: 'auto', maxWidth: '140px' }}
                 >
                   + Add Code
                 </button>
@@ -336,6 +356,7 @@ export default function ChapterForm({ courseId, chapter, onSave, onCancel }) {
                   type="button"
                   onClick={() => addContentBlock('quiz')}
                   className="btn btn-outline btn-small"
+                  style={{ width: 'auto', maxWidth: '140px' }}
                 >
                   + Add Quiz
                 </button>

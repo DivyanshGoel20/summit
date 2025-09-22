@@ -6,6 +6,8 @@ export default function CoursePlayer({ course, user, onBack }) {
   const [currentChapterIndex, setCurrentChapterIndex] = useState(0)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [selectedAnswers, setSelectedAnswers] = useState({})
+  const [quizResults, setQuizResults] = useState({})
 
   useEffect(() => {
     if (course?.id) {
@@ -40,6 +42,21 @@ export default function CoursePlayer({ course, user, onBack }) {
   const goToPreviousChapter = () => {
     if (currentChapterIndex > 0) {
       setCurrentChapterIndex(currentChapterIndex - 1)
+    }
+  }
+
+  const handleQuizSelect = (contentId, optionIndex) => {
+    setSelectedAnswers(prev => ({ ...prev, [contentId]: optionIndex }))
+    // Clear previous result when changing selection
+    setQuizResults(prev => ({ ...prev, [contentId]: undefined }))
+  }
+
+  const handleQuizSubmit = (content) => {
+    const selected = selectedAnswers[content.id]
+    const correctIndex = content.metadata?.correctIndex
+    if (typeof selected === 'number' && typeof correctIndex === 'number') {
+      const isCorrect = selected === correctIndex
+      setQuizResults(prev => ({ ...prev, [content.id]: isCorrect }))
     }
   }
 
@@ -90,22 +107,51 @@ export default function CoursePlayer({ course, user, onBack }) {
           </div>
         )
 
-      case 'quiz':
+      case 'quiz': {
+        const options = content.content.split('\n').filter(option => option.trim())
+        const selected = selectedAnswers[content.id]
+        const result = quizResults[content.id]
+        const correctIndex = content.metadata?.correctIndex
         return (
           <div className="content-quiz">
             <div className="quiz-question">
               <h4>{content.metadata?.question || 'Quiz Question'}</h4>
             </div>
             <div className="quiz-options">
-              {content.content.split('\n').filter(option => option.trim()).map((option, index) => (
-                <div key={index} className="quiz-option">
-                  <input type="radio" name={`quiz_${content.id}`} id={`option_${content.id}_${index}`} />
-                  <label htmlFor={`option_${content.id}_${index}`}>{option.trim()}</label>
-                </div>
+              {options.map((option, index) => (
+                <label key={index} className="quiz-option" htmlFor={`option_${content.id}_${index}`}>
+                  <input 
+                    type="radio" 
+                    name={`quiz_${content.id}`} 
+                    id={`option_${content.id}_${index}`} 
+                    checked={selected === index}
+                    onChange={() => handleQuizSelect(content.id, index)}
+                  />
+                  <span>{option.trim()}</span>
+                </label>
               ))}
+            </div>
+            <div style={{ marginTop: '1rem', display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+              <button 
+                className="btn btn-primary btn-small"
+                style={{ width: 'auto', maxWidth: '200px' }}
+                onClick={() => handleQuizSubmit(content)}
+                disabled={typeof selected !== 'number'}
+              >
+                Check Answer
+              </button>
+              {typeof result === 'boolean' && (
+                <span style={{
+                  color: result ? '#16a34a' : '#dc2626',
+                  fontWeight: 600
+                }}>
+                  {result ? 'Correct!' : `Incorrect${typeof correctIndex === 'number' ? ` (Correct: ${options[correctIndex] || ''})` : ''}`}
+                </span>
+              )}
             </div>
           </div>
         )
+      }
 
       default:
         return <div className="content-unknown">Unknown content type</div>

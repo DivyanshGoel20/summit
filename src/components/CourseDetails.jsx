@@ -37,8 +37,8 @@ export default function CourseDetails({ user, courseId, onBack }) {
         setIsEnrolled(true)
       }
       
-      // Load chapters for this course
-      await loadChapters()
+      // Load chapters for this course (pass id directly to avoid state timing)
+      await loadChapters(courseId)
     } catch (err) {
       setError('Failed to load course details. Please try again.')
     } finally {
@@ -111,11 +111,11 @@ export default function CourseDetails({ user, courseId, onBack }) {
     }
   }
 
-  const loadChapters = async () => {
-    if (!course?.id) return
-    
+  const loadChapters = async (targetCourseId) => {
+    const idToLoad = targetCourseId || course?.id
+    if (!idToLoad) return
     try {
-      const { chapters: courseChapters } = await chapterService.getCourseChapters(course.id)
+      const { chapters: courseChapters } = await chapterService.getCourseChapters(idToLoad)
       setChapters(courseChapters || [])
     } catch (error) {
       console.error('Error loading chapters:', error)
@@ -224,7 +224,6 @@ export default function CourseDetails({ user, courseId, onBack }) {
                   )
                 ) : (
                   <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                    <button className="btn btn-primary">Edit Course</button>
                     <button 
                       onClick={handleStatusToggle}
                       disabled={updatingStatus}
@@ -244,7 +243,7 @@ export default function CourseDetails({ user, courseId, onBack }) {
               <>
                 <div className="card-header">
                   <h3>Course Content</h3>
-                  <button onClick={handleAddChapter} className="btn btn-primary btn-small">
+                  <button onClick={handleAddChapter} className="btn btn-primary btn-small" style={{ width: 'auto', maxWidth: '200px' }}>
                     + Add Chapter
                   </button>
                 </div>

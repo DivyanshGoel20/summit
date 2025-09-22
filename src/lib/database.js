@@ -568,3 +568,201 @@ export const contentService = {
     }
   }
 }
+
+// Student Challenges Service
+export const challengeService = {
+  async createChallenge(challengeData) {
+    try {
+      const { data, error } = await supabase
+        .from('student_challenges')
+        .insert([challengeData])
+        .select(`
+          *,
+          users!student_challenges_author_id_fkey (
+            id,
+            name,
+            username
+          )
+        `)
+        .single()
+
+      if (error) throw error
+      return { challenge: data }
+    } catch (error) {
+      throw error
+    }
+  },
+
+  async getCourseChallenges(courseId) {
+    try {
+      const { data, error } = await supabase
+        .from('student_challenges')
+        .select(`
+          *,
+          users!student_challenges_author_id_fkey (
+            id,
+            name,
+            username
+          ),
+          challenge_submissions (
+            id,
+            student_id,
+            is_correct,
+            points_earned,
+            submitted_at
+          )
+        `)
+        .eq('course_id', courseId)
+        .eq('is_active', true)
+        .order('created_at', { ascending: false })
+
+      if (error) throw error
+      return { challenges: data || [] }
+    } catch (error) {
+      throw error
+    }
+  },
+
+  async getChallengeDetails(challengeId) {
+    try {
+      const { data, error } = await supabase
+        .from('student_challenges')
+        .select(`
+          *,
+          users!student_challenges_author_id_fkey (
+            id,
+            name,
+            username
+          ),
+          challenge_submissions (
+            id,
+            student_id,
+            is_correct,
+            points_earned,
+            feedback,
+            submitted_at
+          )
+        `)
+        .eq('id', challengeId)
+        .single()
+
+      if (error) throw error
+      return { challenge: data }
+    } catch (error) {
+      throw error
+    }
+  },
+
+  async updateChallenge(challengeId, updates) {
+    try {
+      const { data, error } = await supabase
+        .from('student_challenges')
+        .update(updates)
+        .eq('id', challengeId)
+        .select(`
+          *,
+          users!student_challenges_author_id_fkey (
+            id,
+            name,
+            username
+          )
+        `)
+        .single()
+
+      if (error) throw error
+      return { challenge: data }
+    } catch (error) {
+      throw error
+    }
+  },
+
+  async deleteChallenge(challengeId) {
+    try {
+      const { error } = await supabase
+        .from('student_challenges')
+        .delete()
+        .eq('id', challengeId)
+
+      if (error) throw error
+      return { success: true }
+    } catch (error) {
+      throw error
+    }
+  }
+}
+
+// Challenge Submissions Service
+export const submissionService = {
+  async submitChallenge(submissionData) {
+    try {
+      const { data, error } = await supabase
+        .from('challenge_submissions')
+        .upsert([submissionData], {
+          onConflict: 'challenge_id,student_id'
+        })
+        .select(`
+          *,
+          student_challenges!challenge_submissions_challenge_id_fkey (
+            id,
+            title,
+            points,
+            challenge_type
+          )
+        `)
+        .single()
+
+      if (error) throw error
+      return { submission: data }
+    } catch (error) {
+      throw error
+    }
+  },
+
+  async getStudentSubmissions(studentId, courseId) {
+    try {
+      const { data, error } = await supabase
+        .from('challenge_submissions')
+        .select(`
+          *,
+          student_challenges!challenge_submissions_challenge_id_fkey (
+            id,
+            title,
+            challenge_type,
+            points,
+            difficulty
+          )
+        `)
+        .eq('student_id', studentId)
+        .eq('student_challenges.course_id', courseId)
+        .order('submitted_at', { ascending: false })
+
+      if (error) throw error
+      return { submissions: data || [] }
+    } catch (error) {
+      throw error
+    }
+  },
+
+  async getChallengeLeaderboard(challengeId) {
+    try {
+      const { data, error } = await supabase
+        .from('challenge_submissions')
+        .select(`
+          *,
+          users!challenge_submissions_student_id_fkey (
+            id,
+            name,
+            username
+          )
+        `)
+        .eq('challenge_id', challengeId)
+        .eq('is_correct', true)
+        .order('submitted_at', { ascending: true })
+
+      if (error) throw error
+      return { leaderboard: data || [] }
+    } catch (error) {
+      throw error
+    }
+  }
+}

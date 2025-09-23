@@ -136,7 +136,7 @@ export const enrollmentService = {
     }
   },
 
-  // Get student's enrolled courses
+  // Get student's enrolled courses (including completed)
   async getStudentCourses(studentId) {
     try {
       const { data, error } = await supabase
@@ -153,7 +153,7 @@ export const enrollmentService = {
           )
         `)
         .eq('student_id', studentId)
-        .eq('status', 'active')
+        .in('status', ['active', 'completed'])
         .order('enrolled_at', { ascending: false })
 
       if (error) throw error
@@ -179,7 +179,7 @@ export const enrollmentService = {
     }
   },
 
-  // Check if student is enrolled
+  // Check if student is enrolled (including completed courses)
   async isEnrolled(studentId, courseId) {
     try {
       const { data, error } = await supabase
@@ -187,7 +187,7 @@ export const enrollmentService = {
         .select('id, status, completion_deadline, completed_at')
         .eq('student_id', studentId)
         .eq('course_id', courseId)
-        .eq('status', 'active')
+        .in('status', ['active', 'completed'])
 
       if (error) throw error
       return { 

@@ -45,9 +45,10 @@ export default function StudentDashboard({ user, onLogout }) {
     try {
       setCoursesLoading(true)
       const { enrollments } = await enrollmentService.getStudentCourses(user.id)
-      // Filter out courses that are no longer active (draft courses)
+      // Filter out courses that are no longer active (draft courses) but include completed courses
       const activeEnrollments = (enrollments || []).filter(enrollment => 
-        enrollment.courses?.status === 'active' && enrollment.status === 'active'
+        enrollment.courses?.status === 'active' && 
+        (enrollment.status === 'active' || enrollment.status === 'completed')
       )
       setEnrolledCourses(activeEnrollments)
     } catch (error) {

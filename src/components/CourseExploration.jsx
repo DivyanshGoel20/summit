@@ -45,7 +45,7 @@ export default function CourseExploration({ user, onBack }) {
         console.log(`Course ${course.title}:`, { isEnrolled, enrollment })
         return { 
           ...course, 
-          isEnrolled: isEnrolled && enrollment?.status !== 'completed',
+          isEnrolled: isEnrolled, // Keep enrolled status for both active and completed
           enrollmentStatus: enrollment?.status || null,
           completionDeadline: enrollment?.completion_deadline || null,
           completedAt: enrollment?.completed_at || null
@@ -77,12 +77,12 @@ export default function CourseExploration({ user, onBack }) {
       
       // Check if already enrolled or completed
       const { isEnrolled, enrollment } = await enrollmentService.isEnrolled(user.id, courseId)
-      if (isEnrolled) {
-        alert('You are already enrolled in this course!')
-        return
-      }
       if (enrollment?.status === 'completed') {
         alert('You have already completed this course!')
+        return
+      }
+      if (isEnrolled && enrollment?.status === 'active') {
+        alert('You are already enrolled in this course!')
         return
       }
 
@@ -261,7 +261,7 @@ export default function CourseExploration({ user, onBack }) {
                 </button>
                 <button
                   onClick={() => handleEnroll(course.id)}
-                  disabled={enrolling === course.id || course.isEnrolled || course.enrollmentStatus === 'completed'}
+                  disabled={enrolling === course.id || course.enrollmentStatus === 'completed'}
                   className={`btn ${
                     course.enrollmentStatus === 'completed' 
                       ? 'btn-completed' 

@@ -2525,6 +2525,12 @@ body {
   margin: 0;
 }
 
+/* TTS listen button optional emphasis */
+.btn-small {
+  padding: 0.35rem 0.6rem;
+  font-size: 0.9rem;
+}
+
 /* Chapter Progression Styles */
 .chapter-item.completed {
   background: #f0f9ff;

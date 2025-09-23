@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { chapterService, enrollmentService, chapterProgressService } from '../lib/database'
+import { speakText } from '../lib/ttsClient'
 import { isEnrollmentExpired, getTimeUntilDeadline } from '../utils/deadlineChecker'
 import ChallengeList from './ChallengeList'
 
@@ -354,7 +355,27 @@ export default function CoursePlayer({ course, user, onBack, onCourseCompleted }
           ← Back to Course
         </button>
         <h1>{course?.title}</h1>
-        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+            <button
+              className="btn btn-outline btn-small"
+              style={{ width: 'auto', maxWidth: '200px' }}
+              onClick={async () => {
+                try {
+                  const title = currentChapter?.title || ''
+                  const body = (currentChapter?.chapter_content || [])
+                    .filter(c => c.content_type === 'text' && c.content?.trim())
+                    .map(c => c.content.trim())
+                    .join('\n\n')
+                  const text = [title, body].filter(Boolean).join('\n\n')
+                  const { ok, error } = await speakText({ text })
+                  if (!ok && error) alert(error)
+                } catch (e) {
+                  alert('Unable to play audio')
+                }
+              }}
+            >
+              🔊 Listen
+            </button>
           <div className="course-progress">
             Chapter {currentChapterIndex + 1} of {chapters.length}
           </div>

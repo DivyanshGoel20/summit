@@ -2266,3 +2266,261 @@ body {
 .submission-not-attempted {
   color: #6b7280;
 }
+
+/* Course Completion Styles */
+.course-completion-section {
+  margin: 2rem 0;
+  padding: 2rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 1rem;
+  color: white;
+}
+
+.completion-card {
+  text-align: center;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.completion-card h3 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  color: white;
+}
+
+.completion-card p {
+  font-size: 1.1rem;
+  margin-bottom: 1.5rem;
+  opacity: 0.9;
+}
+
+.completion-success {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  border: 2px solid rgba(34, 197, 94, 0.3);
+}
+
+.completion-success p {
+  margin: 0.5rem 0;
+  font-size: 1.1rem;
+}
+
+.completion-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.deadline-warning {
+  background: rgba(255, 193, 7, 0.2);
+  padding: 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(255, 193, 7, 0.3);
+  margin-bottom: 1rem;
+}
+
+.deadline-warning p {
+  margin: 0.25rem 0;
+  font-size: 0.95rem;
+}
+
+.btn-success {
+  background: #22c55e;
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-success:hover:not(:disabled) {
+  background: #16a34a;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+}
+
+.btn-success:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-large {
+  padding: 1.25rem 2.5rem;
+  font-size: 1.2rem;
+}
+
+/* Modal Styles for Deadline Setting */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 1rem;
+  padding: 0;
+  max-width: 500px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.modal-header {
+  padding: 1.5rem 1.5rem 1rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.modal-header h2 {
+  margin: 0 0 0.5rem 0;
+  color: #111827;
+  font-size: 1.5rem;
+}
+
+.modal-header p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 0.95rem;
+}
+
+.modal-body {
+  padding: 1.5rem;
+}
+
+.deadline-info {
+  background: #f3f4f6;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin-top: 1rem;
+}
+
+.deadline-info p {
+  margin: 0.5rem 0;
+  font-size: 0.9rem;
+  color: #374151;
+}
+
+.modal-footer {
+  padding: 1rem 1.5rem 1.5rem;
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+  border-top: 1px solid #e5e7eb;
+}
+
+/* Deadline Banner Styles */
+.deadline-banner {
+  margin-bottom: 1rem;
+}
+
+.deadline-banner > div {
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+.deadline-expired {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+}
+
+.deadline-urgent {
+  background: #fef3c7;
+  border: 1px solid #fde68a;
+  color: #d97706;
+  animation: pulse 2s infinite;
+}
+
+.deadline-warning {
+  background: #fef3c7;
+  border: 1px solid #fde68a;
+  color: #d97706;
+}
+
+.deadline-info {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  color: #2563eb;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* Course Completion Status Styles */
+.course-status-container {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.course-status.completed {
+  background: #22c55e;
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.btn-completed {
+  background: #6b7280 !important;
+  color: white !important;
+  cursor: not-allowed !important;
+  opacity: 0.7 !important;
+}
+
+.btn-completed:hover {
+  background: #6b7280 !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.completed-date {
+  color: #22c55e !important;
+  font-weight: 600;
+}
+
+/* Course Exploration Header */
+.exploration-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.header-content {
+  flex: 1;
+  text-align: center;
+}
+
+.header-content h1 {
+  margin: 0 0 0.5rem 0;
+}
+
+.header-content p {
+  margin: 0;
+}

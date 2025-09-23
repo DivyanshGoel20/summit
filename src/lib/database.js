@@ -117,13 +117,14 @@ export const courseService = {
 // Course enrollment operations
 export const enrollmentService = {
   // Enroll student in course
-  async enrollStudent(studentId, courseId) {
+  async enrollStudent(studentId, courseId, completionDeadline = null) {
     try {
       const { data, error } = await supabase
         .from('course_enrollments')
         .insert([{
           student_id: studentId,
-          course_id: courseId
+          course_id: courseId,
+          completion_deadline: completionDeadline
         }])
         .select()
         .single()
@@ -183,13 +184,95 @@ export const enrollmentService = {
     try {
       const { data, error } = await supabase
         .from('course_enrollments')
-        .select('id, status')
+        .select('id, status, completion_deadline, completed_at')
         .eq('student_id', studentId)
         .eq('course_id', courseId)
         .eq('status', 'active')
 
       if (error) throw error
-      return { isEnrolled: data && data.length > 0 }
+      return { 
+        isEnrolled: data && data.length > 0,
+        enrollment: data && data.length > 0 ? data[0] : null
+      }
+    } catch (error) {
+      throw error
+    }
+  },
+
+  // Complete a course
+  async completeCourse(studentId, courseId) {
+    try {
+      const { data, error } = await supabase
+        .from('course_enrollments')
+        .update({
+          status: 'completed',
+          completed_at: new Date().toISOString()
+        })
+        .eq('student_id', studentId)
+        .eq('course_id', courseId)
+        .eq('status', 'active')
+        .select()
+        .single()
+
+      if (error) throw error
+      return { enrollment: data }
+    } catch (error) {
+      throw error
+    }
+  },
+
+  // Check for expired deadlines and remove students
+  async checkExpiredDeadlines() {
+    try {
+      const now = new Date().toISOString()
+      
+      // Find enrollments with expired deadlines
+      const { data: expiredEnrollments, error: fetchError } = await supabase
+        .from('course_enrollments')
+        .select('id, student_id, course_id')
+        .eq('status', 'active')
+        .not('completion_deadline', 'is', null)
+        .lt('completion_deadline', now)
+
+      if (fetchError) throw fetchError
+
+      if (expiredEnrollments && expiredEnrollments.length > 0) {
+        // Remove expired enrollments
+        const { error: deleteError } = await supabase
+          .from('course_enrollments')
+          .delete()
+          .in('id', expiredEnrollments.map(e => e.id))
+
+        if (deleteError) throw deleteError
+        
+        return { 
+          removedCount: expiredEnrollments.length,
+          removedEnrollments: expiredEnrollments 
+        }
+      }
+
+      return { removedCount: 0, removedEnrollments: [] }
+    } catch (error) {
+      throw error
+    }
+  },
+
+  // Update enrollment deadline
+  async updateEnrollmentDeadline(studentId, courseId, deadline) {
+    try {
+      const { data, error } = await supabase
+        .from('course_enrollments')
+        .update({
+          completion_deadline: deadline
+        })
+        .eq('student_id', studentId)
+        .eq('course_id', courseId)
+        .eq('status', 'active')
+        .select()
+        .single()
+
+      if (error) throw error
+      return { enrollment: data }
     } catch (error) {
       throw error
     }

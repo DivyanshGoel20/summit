@@ -3,7 +3,7 @@ import { courseService, enrollmentService, chapterService } from '../lib/databas
 import ChapterForm from './ChapterForm'
 import CoursePlayer from './CoursePlayer'
 
-export default function CourseDetails({ user, courseId, onBack }) {
+export default function CourseDetails({ user, courseId, onBack, onCourseCompleted }) {
   const [course, setCourse] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -163,7 +163,7 @@ export default function CourseDetails({ user, courseId, onBack }) {
 
   // Show course player if requested
   if (showCoursePlayer) {
-    return <CoursePlayer course={course} user={user} onBack={handleBackFromPlayer} />
+    return <CoursePlayer course={course} user={user} onBack={handleBackFromPlayer} onCourseCompleted={onCourseCompleted} />
   }
 
   return (

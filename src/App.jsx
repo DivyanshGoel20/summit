@@ -5,6 +5,7 @@ import SignupPage from './components/SignupPage'
 import Dashboard from './components/Dashboard'
 import StudentDashboard from './components/StudentDashboard'
 import TeacherDashboard from './components/TeacherDashboard'
+import { startDeadlineChecker, stopDeadlineChecker } from './utils/deadlineChecker'
 import './index.css'
 
 export default function App() {
@@ -15,6 +16,14 @@ export default function App() {
   useEffect(() => {
     // Check if user is already logged in
     checkUser()
+    
+    // Start deadline checker (checks every 5 minutes)
+    startDeadlineChecker(5)
+    
+    // Cleanup on unmount
+    return () => {
+      stopDeadlineChecker()
+    }
   }, [])
 
   const checkUser = () => {

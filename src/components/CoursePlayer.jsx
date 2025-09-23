@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react'
-import { chapterService } from '../lib/database'
+import { chapterService, enrollmentService } from '../lib/database'
+import { isEnrollmentExpired, getTimeUntilDeadline } from '../utils/deadlineChecker'
 import ChallengeList from './ChallengeList'
 
-export default function CoursePlayer({ course, user, onBack }) {
+export default function CoursePlayer({ course, user, onBack, onCourseCompleted }) {
   const [chapters, setChapters] = useState([])
   const [currentChapterIndex, setCurrentChapterIndex] = useState(0)
   const [loading, setLoading] = useState(true)
@@ -10,12 +11,15 @@ export default function CoursePlayer({ course, user, onBack }) {
   const [selectedAnswers, setSelectedAnswers] = useState({})
   const [quizResults, setQuizResults] = useState({})
   const [showChallenges, setShowChallenges] = useState(false)
+  const [enrollment, setEnrollment] = useState(null)
+  const [completing, setCompleting] = useState(false)
 
   useEffect(() => {
-    if (course?.id) {
+    if (course?.id && user?.id) {
       loadChapters()
+      loadEnrollmentData()
     }
-  }, [course?.id])
+  }, [course?.id, user?.id])
 
   const loadChapters = async () => {
     try {
@@ -26,6 +30,43 @@ export default function CoursePlayer({ course, user, onBack }) {
       setError('Failed to load course content. Please try again.')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const loadEnrollmentData = async () => {
+    try {
+      const { enrollment: enrollmentData } = await enrollmentService.isEnrolled(user.id, course.id)
+      setEnrollment(enrollmentData)
+    } catch (err) {
+      console.error('Error loading enrollment data:', err)
+    }
+  }
+
+  const handleCompleteCourse = async () => {
+    if (!user?.id || !course?.id) return
+
+    try {
+      setCompleting(true)
+      await enrollmentService.completeCourse(user.id, course.id)
+      
+      // Update local enrollment state
+      setEnrollment(prev => ({
+        ...prev,
+        status: 'completed',
+        completed_at: new Date().toISOString()
+      }))
+      
+      // Notify parent component about course completion
+      if (onCourseCompleted) {
+        onCourseCompleted(course.id)
+      }
+      
+      alert('Congratulations! You have successfully completed this course!')
+    } catch (err) {
+      console.error('Error completing course:', err)
+      alert('Failed to complete course. Please try again.')
+    } finally {
+      setCompleting(false)
     }
   }
 
@@ -272,6 +313,40 @@ export default function CoursePlayer({ course, user, onBack }) {
 
         {/* Main Content Area */}
         <div className="course-main-content">
+          {/* Deadline Warning Banner */}
+          {enrollment?.completion_deadline && enrollment.status !== 'completed' && (
+            <div className="deadline-banner">
+              {(() => {
+                const timeInfo = getTimeUntilDeadline(enrollment)
+                if (timeInfo.expired) {
+                  return (
+                    <div className="deadline-expired">
+                      <span>⚠️ Your deadline has passed! Complete the course now to avoid being removed.</span>
+                    </div>
+                  )
+                } else if (timeInfo.days <= 1) {
+                  return (
+                    <div className="deadline-urgent">
+                      <span>⏰ Deadline approaching! {timeInfo.days === 0 ? `${timeInfo.hours}h ${timeInfo.minutes}m` : `${timeInfo.days} day${timeInfo.days !== 1 ? 's' : ''}`} remaining</span>
+                    </div>
+                  )
+                } else if (timeInfo.days <= 3) {
+                  return (
+                    <div className="deadline-warning">
+                      <span>⏰ Deadline in {timeInfo.days} days - Complete the course soon!</span>
+                    </div>
+                  )
+                } else {
+                  return (
+                    <div className="deadline-info">
+                      <span>📅 Deadline: {new Date(enrollment.completion_deadline).toLocaleDateString()}</span>
+                    </div>
+                  )
+                }
+              })()}
+            </div>
+          )}
+
           {currentChapter && (
             <>
               <div className="chapter-header">
@@ -297,6 +372,39 @@ export default function CoursePlayer({ course, user, onBack }) {
                 )}
               </div>
 
+              {/* Course Completion Section */}
+              {currentChapter.title === 'Course Completion' && (
+                <div className="course-completion-section">
+                  <div className="completion-card">
+                    <h3>🎉 Course Completion</h3>
+                    <p>You've reached the end of this course! Click the button below to mark this course as completed.</p>
+                    
+                    {enrollment?.status === 'completed' ? (
+                      <div className="completion-success">
+                        <p>✅ <strong>Congratulations! You have completed this course!</strong></p>
+                        <p>Completed on: {new Date(enrollment.completed_at).toLocaleDateString()}</p>
+                      </div>
+                    ) : (
+                      <div className="completion-actions">
+                        {enrollment?.completion_deadline && (
+                          <div className="deadline-warning">
+                            <p>⏰ <strong>Deadline:</strong> {new Date(enrollment.completion_deadline).toLocaleDateString()}</p>
+                            <p>Complete the course before this date to avoid being removed from the course.</p>
+                          </div>
+                        )}
+                        <button
+                          onClick={handleCompleteCourse}
+                          disabled={completing}
+                          className="btn btn-success btn-large"
+                        >
+                          {completing ? 'Completing...' : 'Complete Course'}
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
               <div className="chapter-navigation">
                 <button
                   onClick={goToPreviousChapter}
@@ -305,13 +413,15 @@ export default function CoursePlayer({ course, user, onBack }) {
                 >
                   ← Previous Chapter
                 </button>
-                <button
-                  onClick={goToNextChapter}
-                  disabled={currentChapterIndex === chapters.length - 1}
-                  className="btn btn-primary"
-                >
-                  Next Chapter →
-                </button>
+                {currentChapter.title !== 'Course Completion' && (
+                  <button
+                    onClick={goToNextChapter}
+                    disabled={currentChapterIndex === chapters.length - 1}
+                    className="btn btn-primary"
+                  >
+                    Next Chapter →
+                  </button>
+                )}
               </div>
             </>
           )}

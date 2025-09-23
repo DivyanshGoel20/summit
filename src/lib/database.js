@@ -279,6 +279,87 @@ export const enrollmentService = {
   }
 }
 
+// Chapter Progress Service
+export const chapterProgressService = {
+  // Mark chapter as completed
+  async completeChapter(studentId, chapterId, courseId) {
+    try {
+      const { data, error } = await supabase
+        .from('chapter_progress')
+        .insert([{
+          student_id: studentId,
+          chapter_id: chapterId,
+          course_id: courseId
+        }])
+        .select()
+        .single()
+
+      if (error) throw error
+      return { progress: data }
+    } catch (error) {
+      throw error
+    }
+  },
+
+  // Get student's chapter progress for a course
+  async getStudentChapterProgress(studentId, courseId) {
+    try {
+      const { data, error } = await supabase
+        .from('chapter_progress')
+        .select('chapter_id, completed_at')
+        .eq('student_id', studentId)
+        .eq('course_id', courseId)
+
+      if (error) throw error
+      return { progress: data || [] }
+    } catch (error) {
+      throw error
+    }
+  },
+
+  // Check if chapter is completed
+  async isChapterCompleted(studentId, chapterId) {
+    try {
+      const { data, error } = await supabase
+        .from('chapter_progress')
+        .select('id')
+        .eq('student_id', studentId)
+        .eq('chapter_id', chapterId)
+        .single()
+
+      if (error && error.code !== 'PGRST116') throw error
+      return { isCompleted: !!data }
+    } catch (error) {
+      throw error
+    }
+  },
+
+  // Get next available chapter for student
+  async getNextAvailableChapter(studentId, courseId) {
+    try {
+      // Get all chapters for the course ordered by order_index
+      const { data: chapters, error: chaptersError } = await supabase
+        .from('chapters')
+        .select('id, order_index')
+        .eq('course_id', courseId)
+        .order('order_index', { ascending: true })
+
+      if (chaptersError) throw chaptersError
+
+      // Get completed chapters
+      const { progress } = await this.getStudentChapterProgress(studentId, courseId)
+      const completedChapterIds = new Set(progress.map(p => p.chapter_id))
+
+      // Find first uncompleted chapter
+      const nextChapter = chapters.find(chapter => !completedChapterIds.has(chapter.id))
+      
+      return { nextChapter, completedCount: completedChapterIds.size, totalCount: chapters.length }
+    } catch (error) {
+      throw error
+    }
+  }
+}
+
 // Todo operations
 export const todoService = {
   // Create a new todo

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { chapterService, enrollmentService } from '../lib/database'
+import { chapterService, enrollmentService, chapterProgressService } from '../lib/database'
 import { isEnrollmentExpired, getTimeUntilDeadline } from '../utils/deadlineChecker'
 import ChallengeList from './ChallengeList'
 
@@ -13,11 +13,15 @@ export default function CoursePlayer({ course, user, onBack, onCourseCompleted }
   const [showChallenges, setShowChallenges] = useState(false)
   const [enrollment, setEnrollment] = useState(null)
   const [completing, setCompleting] = useState(false)
+  const [chapterProgress, setChapterProgress] = useState([])
+  const [nextAvailableChapter, setNextAvailableChapter] = useState(null)
+  const [completingChapter, setCompletingChapter] = useState(false)
 
   useEffect(() => {
     if (course?.id && user?.id) {
       loadChapters()
       loadEnrollmentData()
+      loadChapterProgress()
     }
   }, [course?.id, user?.id])
 
@@ -39,6 +43,43 @@ export default function CoursePlayer({ course, user, onBack, onCourseCompleted }
       setEnrollment(enrollmentData)
     } catch (err) {
       console.error('Error loading enrollment data:', err)
+    }
+  }
+
+  const loadChapterProgress = async () => {
+    try {
+      const { progress } = await chapterProgressService.getStudentChapterProgress(user.id, course.id)
+      setChapterProgress(progress)
+      
+      // Get next available chapter
+      const { nextChapter, completedCount, totalCount } = await chapterProgressService.getNextAvailableChapter(user.id, course.id)
+      setNextAvailableChapter(nextChapter)
+      
+      console.log('Chapter progress loaded:', { progress, nextChapter, completedCount, totalCount })
+    } catch (err) {
+      console.error('Error loading chapter progress:', err)
+    }
+  }
+
+  const handleCompleteChapter = async () => {
+    if (!user?.id || !course?.id || !currentChapter) return
+
+    try {
+      setCompletingChapter(true)
+      await chapterProgressService.completeChapter(user.id, currentChapter.id, course.id)
+      
+      // Update local progress
+      setChapterProgress(prev => [...prev, { chapter_id: currentChapter.id, completed_at: new Date().toISOString() }])
+      
+      // Reload progress to get updated next available chapter
+      await loadChapterProgress()
+      
+      alert('Chapter completed! You can now proceed to the next chapter.')
+    } catch (err) {
+      console.error('Error completing chapter:', err)
+      alert('Failed to complete chapter. Please try again.')
+    } finally {
+      setCompletingChapter(false)
     }
   }
 
@@ -72,19 +113,54 @@ export default function CoursePlayer({ course, user, onBack, onCourseCompleted }
 
   const currentChapter = chapters[currentChapterIndex]
 
+  // Check if a chapter is completed
+  const isChapterCompleted = (chapterId) => {
+    return chapterProgress.some(progress => progress.chapter_id === chapterId)
+  }
+
+  // Check if a chapter is accessible (completed or is the next available chapter)
+  const isChapterAccessible = (chapterId) => {
+    if (isChapterCompleted(chapterId)) return true
+    if (nextAvailableChapter && nextAvailableChapter.id === chapterId) return true
+    return false
+  }
+
   const goToChapter = (index) => {
+    const chapter = chapters[index]
+    if (!chapter) return
+    
+    // Check if chapter is accessible
+    if (!isChapterAccessible(chapter.id)) {
+      alert('You must complete the previous chapters before accessing this one.')
+      return
+    }
+    
     setCurrentChapterIndex(index)
   }
 
   const goToNextChapter = () => {
     if (currentChapterIndex < chapters.length - 1) {
-      setCurrentChapterIndex(currentChapterIndex + 1)
+      const nextIndex = currentChapterIndex + 1
+      const nextChapter = chapters[nextIndex]
+      
+      if (isChapterAccessible(nextChapter.id)) {
+        setCurrentChapterIndex(nextIndex)
+      } else {
+        alert('You must complete the current chapter before proceeding to the next one.')
+      }
     }
   }
 
   const goToPreviousChapter = () => {
     if (currentChapterIndex > 0) {
-      setCurrentChapterIndex(currentChapterIndex - 1)
+      const prevIndex = currentChapterIndex - 1
+      const prevChapter = chapters[prevIndex]
+      
+      if (isChapterAccessible(prevChapter.id)) {
+        setCurrentChapterIndex(prevIndex)
+      } else {
+        alert('You must complete the previous chapters before accessing this one.')
+      }
     }
   }
 
@@ -293,21 +369,36 @@ export default function CoursePlayer({ course, user, onBack, onCourseCompleted }
         <div className="course-sidebar">
           <h3>Course Content</h3>
           <div className="chapter-list">
-            {chapters.map((chapter, index) => (
-              <div
-                key={chapter.id}
-                className={`chapter-item ${index === currentChapterIndex ? 'active' : ''}`}
-                onClick={() => goToChapter(index)}
-              >
-                <div className="chapter-number">{index + 1}</div>
-                <div className="chapter-info">
-                  <h4>{chapter.title}</h4>
-                  {chapter.description && (
-                    <p>{chapter.description}</p>
-                  )}
+            {chapters.map((chapter, index) => {
+              const isCompleted = isChapterCompleted(chapter.id)
+              const isAccessible = isChapterAccessible(chapter.id)
+              const isCurrent = index === currentChapterIndex
+              
+              return (
+                <div
+                  key={chapter.id}
+                  className={`chapter-item ${isCurrent ? 'active' : ''} ${isCompleted ? 'completed' : ''} ${!isAccessible ? 'locked' : ''}`}
+                  onClick={() => isAccessible ? goToChapter(index) : null}
+                  style={{ cursor: isAccessible ? 'pointer' : 'not-allowed' }}
+                >
+                  <div className="chapter-number">
+                    {isCompleted ? '✓' : index + 1}
+                  </div>
+                  <div className="chapter-info">
+                    <h4>{chapter.title}</h4>
+                    {chapter.description && (
+                      <p>{chapter.description}</p>
+                    )}
+                    {isCompleted && (
+                      <span className="chapter-status completed">Completed</span>
+                    )}
+                    {!isAccessible && !isCompleted && (
+                      <span className="chapter-status locked">Locked</span>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         </div>
 
@@ -371,6 +462,32 @@ export default function CoursePlayer({ course, user, onBack, onCourseCompleted }
                   </div>
                 )}
               </div>
+
+              {/* Chapter Completion Section */}
+              {currentChapter.title !== 'Course Completion' && (
+                <div className="chapter-completion-section">
+                  <div className="chapter-completion-card">
+                    {isChapterCompleted(currentChapter.id) ? (
+                      <div className="chapter-completed">
+                        <h4>✅ Chapter Completed</h4>
+                        <p>You have successfully completed this chapter. You can now proceed to the next chapter or review any completed chapters.</p>
+                      </div>
+                    ) : (
+                      <div className="chapter-completion-actions">
+                        <h4>Complete This Chapter</h4>
+                        <p>Once you've finished reading and understanding this chapter's content, click the button below to mark it as completed.</p>
+                        <button
+                          onClick={handleCompleteChapter}
+                          disabled={completingChapter}
+                          className="btn btn-primary"
+                        >
+                          {completingChapter ? 'Completing...' : 'Mark Chapter as Complete'}
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
 
               {/* Course Completion Section */}
               {currentChapter.title === 'Course Completion' && (

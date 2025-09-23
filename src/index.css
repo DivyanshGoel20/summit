@@ -2524,3 +2524,106 @@ body {
 .header-content p {
   margin: 0;
 }
+
+/* Chapter Progression Styles */
+.chapter-item.completed {
+  background: #f0f9ff;
+  border-left: 4px solid #22c55e;
+}
+
+.chapter-item.completed .chapter-number {
+  background: #22c55e;
+  color: white;
+}
+
+.chapter-item.locked {
+  background: #f9fafb;
+  opacity: 0.6;
+  border-left: 4px solid #d1d5db;
+}
+
+.chapter-item.locked .chapter-number {
+  background: #d1d5db;
+  color: #6b7280;
+}
+
+.chapter-status {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  margin-top: 0.5rem;
+  display: inline-block;
+}
+
+.chapter-status.completed {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.chapter-status.locked {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+/* Chapter Completion Section */
+.chapter-completion-section {
+  margin: 2rem 0;
+  padding: 1.5rem;
+  background: #f8fafc;
+  border-radius: 0.75rem;
+  border: 1px solid #e2e8f0;
+}
+
+.chapter-completion-card {
+  text-align: center;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.chapter-completion-card h4 {
+  margin: 0 0 1rem 0;
+  color: #1f2937;
+  font-size: 1.25rem;
+}
+
+.chapter-completion-card p {
+  margin: 0 0 1.5rem 0;
+  color: #6b7280;
+  line-height: 1.5;
+}
+
+.chapter-completed {
+  background: #f0fdf4;
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  border: 1px solid #bbf7d0;
+}
+
+.chapter-completed h4 {
+  color: #166534;
+  margin-bottom: 0.5rem;
+}
+
+.chapter-completed p {
+  color: #15803d;
+  margin: 0;
+}
+
+.chapter-completion-actions {
+  background: #fef3c7;
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  border: 1px solid #fde68a;
+}
+
+.chapter-completion-actions h4 {
+  color: #92400e;
+  margin-bottom: 0.5rem;
+}
+
+.chapter-completion-actions p {
+  color: #a16207;
+  margin: 0 0 1rem 0;
+}

@@ -1,12 +1,26 @@
-# React + Vite
+# Summit  
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**Summit** is an education-focused platform built to make learning and teaching more engaging, accessible, and collaborative. The goal is to bring both students and teachers together in one place with tools that save time, improve communication, and support better learning outcomes.  
 
-Currently, two official plugins are available:
+## Features  
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### 📝 To-Do List  
+Students and teachers can keep track of important tasks without switching to another app.  
+- Teachers can note reminders like creating or updating courses.  
+- Students can keep track of finishing a course, completing quizzes, or applying to a class.  
 
-## Expanding the ESLint configuration
+### 💬 Explore & Chat  
+- **Explore Users**: Connect with other students or reach out directly to teachers.  
+- **Chat**: Send text, images, audio, video, or even PDFs. Perfect for sharing resources and solving queries in real-time.  
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### ❓ Custom Quizzes  
+Students can create and share quizzes within their courses, helping others to learn and test themselves in a fun, interactive way.  
+
+### ⏳ Deadline Feature  
+Students can optionally set a deadline for completing a course. If not completed by the chosen date, their progress resets. This feature promotes responsibility and discipline while staying fully optional.  
+
+### 🗣️ AI Speech (Accessibility)  
+Visually impaired students can click a button to listen to the course content instead of reading it, giving them the freedom to study independently.  
+
+### 📊 Progress Tracking for Teachers  
+Teachers can monitor how far each student has progressed in a course. Combined with the chat feature, this makes it easier to support students who may need help or guidance.  

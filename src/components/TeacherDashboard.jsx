@@ -144,7 +144,7 @@ export default function TeacherDashboard({ user, onLogout }) {
         <div className="container">
           <div className="header-content">
             <div className="header-left">
-              <h1>VirtuHack</h1>
+              <h1>Summit</h1>
             </div>
             <div className="header-right">
               <div className="user-info">

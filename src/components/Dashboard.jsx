@@ -6,7 +6,7 @@ export default function Dashboard({ user, onLogout }) {
         <div className="container">
           <div className="header-content">
             <div className="header-left">
-              <h1>VirtuHack</h1>
+              <h1>Summit</h1>
             </div>
             <div className="header-right">
               <div className="user-info">
@@ -28,7 +28,7 @@ export default function Dashboard({ user, onLogout }) {
               Welcome to your <span className="highlight">Dashboard</span>
             </h1>
             <p>
-              You have successfully logged in to VirtuHack.
+              You have successfully logged in to Summit.
             </p>
             <p>
               This is where your {user?.role === 'teacher' ? 'teaching' : 'learning'} journey begins. Explore our features and start your educational adventure.

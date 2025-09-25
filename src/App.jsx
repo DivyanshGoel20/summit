@@ -102,7 +102,7 @@ export default function App() {
       {/* Header */}
       <header className="header">
         <div className="container">
-          <h1>VirtuHack</h1>
+          <h1>Summit</h1>
         </div>
       </header>
 
@@ -111,7 +111,7 @@ export default function App() {
         <div className="container">
           <div className="hero">
             <h1>
-              Welcome to <span className="highlight">VirtuHack</span>
+              Welcome to <span className="highlight">Summit</span>
             </h1>
             <p>
               Your gateway to innovative education technology.

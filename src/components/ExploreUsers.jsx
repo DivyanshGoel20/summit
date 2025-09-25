@@ -118,48 +118,153 @@ export default function ExploreUsers({ user, onBack, onStartChat }) {
           </p>
         </div>
       ) : (
-        <div className="users-grid">
+        <div className="users-grid" style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
+          gap: '1.5rem',
+          padding: '1rem 0'
+        }}>
           {filteredUsers.map(userItem => (
-            <div key={userItem.id} className={`user-card ${isCurrentUser(userItem.id) ? 'current-user' : ''}`}>
-              <div className="user-avatar">
-                <span className="avatar-icon" style={{ color: getRoleColor(userItem.role) }}>
-                  {getRoleIcon(userItem.role)}
-                </span>
-                {isCurrentUser(userItem.id) && (
-                  <div className="current-user-badge">You</div>
-                )}
-              </div>
-              
-              <div className="user-info">
-                <div className="user-details-row">
-                  <div className="user-name-section">
-                    <h3 className="user-name">{userItem.name}</h3>
-                    <p className="user-username">@{userItem.username}</p>
-                  </div>
-                  <span 
-                    className="role-badge"
-                    style={{ backgroundColor: getRoleColor(userItem.role) }}
-                  >
-                    {userItem.role}
+            <div key={userItem.id} className={`user-card ${isCurrentUser(userItem.id) ? 'current-user' : ''}`} style={{
+              backgroundColor: '#ffffff',
+              borderRadius: '12px',
+              padding: '1.5rem',
+              border: '1px solid #e5e7eb',
+              boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
+              transition: 'all 0.2s ease',
+              position: 'relative',
+              overflow: 'hidden'
+            }}>
+              {/* Current User Badge */}
+              {isCurrentUser(userItem.id) && (
+                <div style={{
+                  position: 'absolute',
+                  top: '0.75rem',
+                  right: '0.75rem',
+                  backgroundColor: '#3b82f6',
+                  color: 'white',
+                  padding: '0.25rem 0.5rem',
+                  borderRadius: '6px',
+                  fontSize: '0.75rem',
+                  fontWeight: '600'
+                }}>
+                  You
+                </div>
+              )}
+
+              {/* Avatar Section */}
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                marginBottom: '1rem'
+              }}>
+                <div style={{
+                  width: '60px',
+                  height: '60px',
+                  borderRadius: '50%',
+                  backgroundColor: getRoleColor(userItem.role) + '20',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  marginRight: '1rem'
+                }}>
+                  <span style={{ 
+                    fontSize: '1.5rem',
+                    color: getRoleColor(userItem.role)
+                  }}>
+                    {getRoleIcon(userItem.role)}
                   </span>
-                  <div className="user-joined-section">
-                    <p className="user-joined">Joined</p>
-                    <p className="user-joined-date">
-                      {new Date(userItem.created_at).toLocaleDateString()}
-                    </p>
-                  </div>
+                </div>
+                
+                <div style={{ flex: 1 }}>
+                  <h3 style={{
+                    margin: '0 0 0.25rem 0',
+                    fontSize: '1.25rem',
+                    fontWeight: '600',
+                    color: '#111827'
+                  }}>
+                    {userItem.name}
+                  </h3>
+                  <p style={{
+                    margin: '0',
+                    fontSize: '0.875rem',
+                    color: '#6b7280'
+                  }}>
+                    @{userItem.username}
+                  </p>
                 </div>
               </div>
 
-              <div className="user-actions">
+              {/* Role Badge */}
+              <div style={{ marginBottom: '1rem' }}>
+                <span style={{
+                  display: 'inline-block',
+                  backgroundColor: getRoleColor(userItem.role),
+                  color: 'white',
+                  padding: '0.375rem 0.75rem',
+                  borderRadius: '6px',
+                  fontSize: '0.75rem',
+                  fontWeight: '600',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em'
+                }}>
+                  {userItem.role}
+                </span>
+              </div>
+
+              {/* Joined Date */}
+              <div style={{
+                marginBottom: '1.5rem',
+                padding: '0.75rem',
+                backgroundColor: '#f9fafb',
+                borderRadius: '8px',
+                border: '1px solid #f3f4f6'
+              }}>
+                <p style={{
+                  margin: '0',
+                  fontSize: '0.875rem',
+                  color: '#6b7280',
+                  fontWeight: '500'
+                }}>
+                  Joined {new Date(userItem.created_at).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                  })}
+                </p>
+              </div>
+
+              {/* Action Button */}
+              <div>
                 {isCurrentUser(userItem.id) ? (
-                  <button className="btn btn-secondary btn-small" disabled>
+                  <button 
+                    className="btn btn-secondary" 
+                    disabled
+                    style={{
+                      width: '100%',
+                      padding: '0.75rem 1rem',
+                      fontSize: '0.875rem',
+                      fontWeight: '500',
+                      opacity: '0.6',
+                      cursor: 'not-allowed'
+                    }}
+                  >
                     👤 This is you
                   </button>
                 ) : (
                   <button
                     onClick={() => handleStartChat(userItem)}
-                    className="btn btn-primary btn-small"
+                    className="btn btn-primary"
+                    style={{
+                      width: '100%',
+                      padding: '0.75rem 1rem',
+                      fontSize: '0.875rem',
+                      fontWeight: '500',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '0.5rem'
+                    }}
                   >
                     💬 Start Chat
                   </button>

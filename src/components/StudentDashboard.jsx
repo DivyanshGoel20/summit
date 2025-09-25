@@ -152,7 +152,10 @@ export default function StudentDashboard({ user, onLogout }) {
         <div className="container">
           <div className="header-content">
             <div className="header-left">
-              <h1>Summit</h1>
+              <h1 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <img src="/logo.png" alt="Summit logo" style={{ width: '36px', height: '36px' }} />
+                Summit
+              </h1>
             </div>
             <div className="header-right">
               <div className="user-info">

@@ -102,7 +102,10 @@ export default function App() {
       {/* Header */}
       <header className="header">
         <div className="container">
-          <h1>Summit</h1>
+          <h1 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <img src="/logo.png" alt="Summit logo" style={{ width: '40px', height: '40px' }} />
+            Summit
+          </h1>
         </div>
       </header>
 
@@ -110,8 +113,13 @@ export default function App() {
       <main className="main">
         <div className="container">
           <div className="hero">
-            <h1>
-              Welcome to <span className="highlight">Summit</span>
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.25rem' }}>
+              <img src="/logo.png" alt="Summit logo large" style={{ width: '140px', height: '140px' }} />
+            </div>
+            <h1 style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', gap: '0.5rem', flexWrap: 'wrap', width: '100%' }}>
+              <span className="highlight" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
+              Welcome to Summit
+              </span>
             </h1>
             <p>
               Your gateway to innovative education technology.

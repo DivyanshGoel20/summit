@@ -11,10 +11,6 @@ export default function Chat({ currentUser, onBack, startWithUser = null }) {
   const [currentConversation, setCurrentConversation] = useState(null)
   const [subscription, setSubscription] = useState(null)
 
-  console.log('Chat component rendered with currentUser:', currentUser)
-  console.log('Current view:', currentView)
-  console.log('Start with user:', startWithUser)
-  console.log('Available views: list, chat, explore')
 
   // Don't render if no currentUser
   if (!currentUser?.id) {
@@ -43,19 +39,22 @@ export default function Chat({ currentUser, onBack, startWithUser = null }) {
   // Auto-start chat if startWithUser is provided
   useEffect(() => {
     if (startWithUser && currentUser?.id) {
-      console.log('Auto-starting chat with user:', startWithUser)
       handleStartChat(startWithUser)
     }
   }, [startWithUser, currentUser?.id])
 
   const handleStartChat = async (user, existingConversation = null) => {
-    console.log('handleStartChat called with:', user, existingConversation)
     try {
+      // Validate user IDs before proceeding
+      if (!currentUser?.id || !user?.id) {
+        console.error('Missing user IDs:', { currentUserId: currentUser?.id, targetUserId: user?.id })
+        return
+      }
+
       let conversation = existingConversation
 
       // If no existing conversation, create or get one
       if (!conversation) {
-        console.log('Creating new conversation between:', currentUser.id, user.id)
         const { conversation: newConversation, error } = await chatService.getOrCreateConversation(
           currentUser.id,
           user.id
@@ -67,9 +66,6 @@ export default function Chat({ currentUser, onBack, startWithUser = null }) {
         }
 
         conversation = newConversation
-        console.log('Created conversation:', conversation)
-      } else {
-        console.log('Using existing conversation:', conversation)
       }
 
       setSelectedUser(user)

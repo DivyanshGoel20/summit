@@ -68,7 +68,7 @@ export const courseService = {
             id,
             status,
             enrolled_at,
-            users!course_enrollments_student_id_fkey(name, username)
+            users!course_enrollments_student_id_fkey(id, name, username)
           )
         `)
         .eq('id', courseId)
